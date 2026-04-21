@@ -16,6 +16,10 @@ async function createSampleImageFile(name = "sample.jpg") {
   return new File([buffer], name, { type: "image/jpeg" });
 }
 
+function createNonImageFile(name = "not-image.txt") {
+  return new File(["plain text"], name, { type: "text/plain" });
+}
+
 async function patientHeaders() {
   const token = await signJwt({
     sub: "patient-1",
@@ -91,5 +95,24 @@ describe("images and followups api", () => {
 
     expect(response.status).toBe(200);
     expect(Array.isArray(body.followups)).toBe(true);
+  });
+
+  it("rejects non-image uploads", async () => {
+    const form = new FormData();
+    form.append("file", createNonImageFile());
+    form.append("shotDate", "2026-04-21");
+    form.append("positionType", "sitting_front");
+
+    const request = new NextRequest("http://localhost/api/images", {
+      method: "POST",
+      headers: await patientHeaders(),
+      body: form
+    });
+
+    const response = await uploadImage(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe("仅支持图片文件上传");
   });
 });

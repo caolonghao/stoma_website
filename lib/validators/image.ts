@@ -13,3 +13,7 @@ export const imageUploadMetadataSchema = z.object({
 });
 
 export type ImageUploadMetadata = z.infer<typeof imageUploadMetadataSchema>;
+
+export function isSupportedImageFile(file: File) {
+  return file.type.startsWith("image/");
+}
