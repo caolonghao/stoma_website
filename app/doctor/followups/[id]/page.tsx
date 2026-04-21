@@ -26,7 +26,7 @@ export default async function DoctorFollowupDetailPage({
       <main className="portal-shell">
         <section className="portal-panel">
           <p className="eyebrow">Doctor Follow-up</p>
-          <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}>未找到这次随访</h1>
+          <h1 className="page-title">未找到这次随访</h1>
           <Link className="auth-link" href="/doctor/patients">
             返回患者列表
           </Link>
@@ -56,8 +56,8 @@ export default async function DoctorFollowupDetailPage({
       <header className="portal-header">
         <div>
           <p className="eyebrow">Doctor Follow-up</p>
-          <h1 style={{ fontSize: "clamp(2.6rem, 6vw, 4.8rem)" }}>{followup.followupDate}</h1>
-          <p style={{ marginTop: 12 }}>
+          <h1 className="page-title">{followup.followupDate}</h1>
+          <p className="page-intro">
             这里汇总单张图像的 AI 辅助状态。当前 AI 只返回 category 粒度，最终细分类仍由医生人工判读。
           </p>
         </div>

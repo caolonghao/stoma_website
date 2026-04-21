@@ -21,7 +21,7 @@ export default async function DoctorPatientDetailPage({
       <main className="portal-shell">
         <section className="portal-panel">
           <p className="eyebrow">Patient Detail</p>
-          <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 4.2rem)" }}>未找到患者</h1>
+          <h1 className="page-title">未找到患者</h1>
           <p className="hero-copy">这个患者 ID 当前不存在，可能还没有完成建档。</p>
           <Link className="auth-link" href="/doctor/patients">
             返回患者列表
@@ -38,8 +38,8 @@ export default async function DoctorPatientDetailPage({
       <header className="portal-header">
         <div>
           <p className="eyebrow">Patient Detail</p>
-          <h1 style={{ fontSize: "clamp(2.6rem, 6vw, 4.8rem)" }}>{patient.name}</h1>
-          <p style={{ marginTop: 12 }}>
+          <h1 className="page-title">{patient.name}</h1>
+          <p className="page-intro">
             当前先展示档案详情占位，下一步会接入随访时间轴、影像列表和 AI / 人工判读入口。
           </p>
         </div>

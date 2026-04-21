@@ -1,12 +1,22 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 const rememberedKey = "stoma-atlas-remembered-account";
 
-export function LoginForm() {
-  const router = useRouter();
+type LoginFormProps = {
+  description?: string;
+  helperText?: string;
+  role?: "doctor" | "patient";
+  title?: string;
+};
+
+export function LoginForm({
+  description = "请输入账号与密码完成登录。",
+  helperText = "JWT 登录会话",
+  role = "patient",
+  title = "登录"
+}: LoginFormProps) {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const [rememberAccount, setRememberAccount] = useState(true);
@@ -19,6 +29,10 @@ export function LoginForm() {
       setAccount(remembered);
     }
   }, []);
+
+  useEffect(() => {
+    setError("");
+  }, [role]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,9 +64,11 @@ export function LoginForm() {
       window.localStorage.removeItem(rememberedKey);
     }
 
+    const destination =
+      body.user.role === "doctor" ? "/doctor/patients" : "/patient/dashboard";
+
     startTransition(() => {
-      router.push(body.user.role === "doctor" ? "/doctor/patients" : "/patient/dashboard");
-      router.refresh();
+      window.location.assign(destination);
     });
   }
 
@@ -60,19 +76,19 @@ export function LoginForm() {
     <>
       <div>
         <p className="eyebrow">Secure Entry</p>
-        <h2>登录</h2>
+        <h2>{title}</h2>
         <p className="muted" style={{ marginTop: 10 }}>
-          医生可使用默认测试账号 `doctor / Doctor123!` 登录。患者端可先自行注册。
+          {description}
         </p>
       </div>
       <form className="form-grid" onSubmit={onSubmit}>
         <div className="field">
-          <label htmlFor="account">账号 / 手机号</label>
+          <label htmlFor="account">{role === "doctor" ? "医生账号" : "账号 / 手机号"}</label>
           <input
             id="account"
             name="account"
             onChange={(event) => setAccount(event.target.value)}
-            placeholder="doctor 或 13800000001"
+            placeholder={role === "doctor" ? "请输入医生账号" : "doctor 或 13800000001"}
             required
             value={account}
           />
@@ -99,11 +115,11 @@ export function LoginForm() {
             />
             记住账号
           </label>
-          <span className="muted">JWT 登录会话</span>
+          <span className="muted">{helperText}</span>
         </div>
         {error ? <p style={{ color: "#9a4f40", margin: 0 }}>{error}</p> : null}
         <button className="button-primary" disabled={isPending} type="submit">
-          {isPending ? "登录中..." : "进入系统"}
+          {isPending ? "登录中..." : role === "doctor" ? "进入医生工作台" : "进入患者空间"}
         </button>
       </form>
     </>
