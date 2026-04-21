@@ -15,7 +15,7 @@ const genderLabel = {
 
 export function PatientListPanel({ patients }: { patients: PatientRecord[] }) {
   return (
-    <section className="portal-panel">
+    <section className="portal-panel panel-surface">
       <div className="panel-heading">
         <div>
           <p className="eyebrow">Patient Ledger</p>
@@ -34,7 +34,7 @@ export function PatientListPanel({ patients }: { patients: PatientRecord[] }) {
                   {genderLabel[patient.gender]} · {stomaTypeLabel[patient.stomaType]}
                 </p>
               </div>
-              <div className="patient-metrics">
+              <div className="clinical-meta">
                 <span>病历号 {patient.medicalRecordNo}</span>
                 <span>造口日期 {patient.stomaDate ?? "待补充"}</span>
               </div>

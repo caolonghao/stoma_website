@@ -38,7 +38,8 @@ export default async function DoctorPatientDetailPage({
       <header className="portal-header">
         <div>
           <p className="eyebrow">Patient Detail</p>
-          <h1 className="page-title">{patient.name}</h1>
+          <h1 className="page-title">患者档案与随访节奏</h1>
+          <p className="page-subtitle">{patient.name}</p>
           <p className="page-intro">
             当前先展示档案详情占位，下一步会接入随访时间轴、影像列表和 AI / 人工判读入口。
           </p>

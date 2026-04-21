@@ -22,11 +22,11 @@ export function ReportSummary({ report }: ReportSummaryProps) {
   }
 
   return (
-    <article className="report-card">
+    <article className="report-card panel-surface">
       <div className="panel-heading">
         <div>
           <p className="eyebrow">Doctor Report</p>
-          <h3>本次随访结论</h3>
+          <h3>医生人工结论</h3>
         </div>
         <span className={`pill ${report.status === "finalized" ? "" : "warn"}`}>
           {report.status === "finalized" ? "最终结果" : "草稿"}

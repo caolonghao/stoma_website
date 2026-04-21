@@ -86,16 +86,19 @@ export function ReportForm({
   }
 
   return (
-    <article className="report-card">
+    <article className="report-card panel-surface">
       <div className="panel-heading">
         <div>
           <p className="eyebrow">Manual Diagnosis</p>
-          <h3>人工综合判读</h3>
+          <h3>人工综合判读与报告提交</h3>
         </div>
         <span className={`pill ${status === "finalized" ? "" : "warn"}`}>
           {status === "finalized" ? "已提交" : "草稿"}
         </span>
       </div>
+      <p className="panel-intro">
+        结合 AI 分类建议与原始影像，完成最终人工判读。草稿可反复修改，最终提交后患者端即可查看。
+      </p>
 
       <div className="form-grid" style={{ marginTop: 16 }}>
         <div className="field">
@@ -179,7 +182,7 @@ export function ReportForm({
         {error ? <p style={{ color: "#9a4f40", margin: 0 }}>{error}</p> : null}
         {success ? <p style={{ color: "#1f5a3c", margin: 0 }}>{success}</p> : null}
 
-        <div className="inline-row">
+        <div className="action-row">
           <button
             className="button-secondary"
             disabled={isPending}

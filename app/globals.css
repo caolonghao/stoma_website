@@ -404,6 +404,13 @@ h1 {
   line-height: 1.7;
 }
 
+.page-subtitle {
+  margin-top: 8px;
+  color: var(--accent-strong);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .portal-grid {
   display: grid;
   grid-template-columns: 1.65fr 1fr;
@@ -420,11 +427,25 @@ h1 {
   padding: 24px;
 }
 
+.panel-surface {
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(245, 250, 253, 0.86));
+  box-shadow: 0 14px 36px rgba(23, 48, 71, 0.06);
+}
+
 .panel-heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
+}
+
+.panel-intro {
+  margin: 10px 0 0;
+  color: var(--ink-soft);
+  font-size: var(--text-helper);
+  line-height: 1.65;
 }
 
 .portal-panel h2 {
@@ -452,6 +473,11 @@ h1 {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.78);
   padding: 16px;
+}
+
+.upload-card,
+.report-card {
+  padding: 20px;
 }
 
 .stat-card strong {
@@ -489,6 +515,16 @@ h1 {
 .timeline-stack {
   display: grid;
   gap: 14px;
+}
+
+.clinical-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 10px;
+  color: var(--ink-soft);
+  font-size: var(--text-helper);
+  line-height: 1.6;
 }
 
 .timeline-card h3,
@@ -642,6 +678,13 @@ h1 {
   color: var(--ink);
   font: inherit;
   resize: vertical;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
 }
 
 @media (max-width: 960px) {

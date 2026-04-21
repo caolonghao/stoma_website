@@ -56,7 +56,8 @@ export default async function DoctorFollowupDetailPage({
       <header className="portal-header">
         <div>
           <p className="eyebrow">Doctor Follow-up</p>
-          <h1 className="page-title">{followup.followupDate}</h1>
+          <h1 className="page-title">影像复核与人工判读</h1>
+          <p className="page-subtitle">随访日期 {followup.followupDate}</p>
           <p className="page-intro">
             这里汇总单张图像的 AI 辅助状态。当前 AI 只返回 category 粒度，最终细分类仍由医生人工判读。
           </p>

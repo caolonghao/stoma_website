@@ -39,6 +39,13 @@ export default async function PatientDashboardPage() {
           )}
         </div>
         <aside className="portal-panel">
+          <div className="panel-heading">
+            <div>
+              <p className="eyebrow">Upload Station</p>
+              <h2>影像上传与随访归档</h2>
+              <p className="panel-intro">用最少字段完成上传，系统会自动归档到对应随访。</p>
+            </div>
+          </div>
           {patient ? (
             <UploadImageForm />
           ) : (

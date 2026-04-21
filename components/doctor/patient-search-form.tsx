@@ -12,14 +12,15 @@ type SearchParams = {
 
 export function PatientSearchForm({ search }: { search: SearchParams }) {
   return (
-    <section className="portal-panel">
+    <section className="portal-panel panel-surface">
       <div className="panel-heading">
         <div>
           <p className="eyebrow">Combinational Query</p>
-          <h2>组合检索</h2>
+          <h2>检索条件</h2>
         </div>
         <span className="muted">7 个字段任意组合</span>
       </div>
+      <p className="panel-intro">优先用姓名、手机号和病历号快速收窄患者范围，再进入详情页查看随访。</p>
 
       <form className="form-grid" method="GET" style={{ marginTop: 16 }}>
         <div className="grid-compact">
@@ -66,7 +67,7 @@ export function PatientSearchForm({ search }: { search: SearchParams }) {
           </div>
         </div>
 
-        <div className="inline-row">
+        <div className="action-row">
           <button className="button-primary" type="submit">
             搜索患者
           </button>

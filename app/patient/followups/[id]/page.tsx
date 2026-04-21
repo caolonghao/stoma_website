@@ -53,7 +53,8 @@ export default async function PatientFollowupDetailPage({
       <header className="portal-header">
         <div>
           <p className="eyebrow">Follow-up Detail</p>
-          <h1 className="page-title">{followup.followupDate}</h1>
+          <h1 className="page-title">随访影像与医生结论</h1>
+          <p className="page-subtitle">随访日期 {followup.followupDate}</p>
           <p className="page-intro">
             当前展示的是这次随访已归档的图片。下一步会继续接入 AI 状态和医生最终综合报告。
           </p>

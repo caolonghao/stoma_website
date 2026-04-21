@@ -39,7 +39,7 @@ export default async function DoctorPatientsPage({
       <header className="portal-header">
         <div>
           <p className="eyebrow">Doctor Workspace</p>
-          <h1 className="page-title">患者管理总览</h1>
+          <h1 className="page-title">患者检索与总览</h1>
           <p className="page-intro">
             这一页已经接入真实的患者建档与组合检索服务，下一步会继续接患者详情与随访时间轴。
           </p>
