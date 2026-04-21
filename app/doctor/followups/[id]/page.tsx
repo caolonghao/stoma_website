@@ -5,6 +5,7 @@ import { RetryAiButton } from "@/components/doctor/retry-ai-button";
 import { getAiSnapshotForImage } from "@/lib/ai/service";
 import { getFollowUpById } from "@/lib/followups/service";
 import { listImagesForFollowup } from "@/lib/images/service";
+import { formatAiCategoryLabel } from "@/lib/reports/category-label";
 import { getReportByFollowupId } from "@/lib/reports/service";
 
 const positionLabel: Record<string, string> = {
@@ -86,7 +87,7 @@ export default async function DoctorFollowupDetailPage({
                 文件：{image.originalFilename}
               </p>
               <p className="muted" style={{ margin: "8px 0 0" }}>
-                AI 分类结果：{aiResult?.category ?? "尚无结果"}
+                AI 分类结果：{formatAiCategoryLabel(aiResult?.category, "尚无结果")}
               </p>
               {aiTask ? <RetryAiButton taskId={aiTask.id} /> : null}
             </article>

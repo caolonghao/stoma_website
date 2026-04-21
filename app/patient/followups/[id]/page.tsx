@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth/current-user";
 import { getFollowUpById } from "@/lib/followups/service";
 import { listImagesForFollowup } from "@/lib/images/service";
 import { getPatientByUserId } from "@/lib/patients/service";
+import { formatAiCategoryLabel } from "@/lib/reports/category-label";
 import { getReportByFollowupId } from "@/lib/reports/service";
 
 const positionLabel: Record<string, string> = {
@@ -82,7 +83,7 @@ export default async function PatientFollowupDetailPage({
                 上传文件：{image.originalFilename}
               </p>
               <p className="muted" style={{ margin: "6px 0 0" }}>
-                AI 分类：{aiResult?.category ?? "正在分析"}
+                AI 分类：{formatAiCategoryLabel(aiResult?.category, "正在分析")}
               </p>
             </article>
           ))}
