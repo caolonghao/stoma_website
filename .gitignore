@@ -1,8 +1,16 @@
+.DS_Store
 node_modules
 .next
 coverage
 playwright-report
 test-results
+.superpowers
+.bg-shell
+uploads
+prisma/dev.db
+prisma/*.db-journal
+prisma/*.db-wal
+prisma/*.db-shm
 .env
 .env.local
 pnpm-lock.yaml
