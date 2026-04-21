@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FollowupList } from "@/components/patient/followup-list";
 import { UploadImageForm } from "@/components/patient/upload-image-form";
+import { LogoutButton } from "@/components/shared/logout-button";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { listHydratedFollowupsForPatient } from "@/lib/followups/service";
 import { getPatientByUserId } from "@/lib/patients/service";
@@ -19,6 +20,9 @@ export default async function PatientDashboardPage() {
           <p className="page-intro">
             患者端第一版先聚焦上传与查看，尽量少制造压力，只保留当前真正需要的信息。
           </p>
+        </div>
+        <div className="header-actions">
+          <LogoutButton />
         </div>
       </header>
       <section className="portal-grid">

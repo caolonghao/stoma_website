@@ -388,6 +388,14 @@ h1 {
   margin-bottom: 20px;
 }
 
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .portal-header p {
   margin: 0;
   color: var(--ink-soft);
@@ -409,6 +417,18 @@ h1 {
   color: var(--accent-strong);
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+.logout-stack {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.inline-error {
+  margin: 0;
+  color: #9a4f40;
+  font-size: var(--text-helper);
 }
 
 .portal-grid {
@@ -595,9 +615,21 @@ h1 {
   background: rgba(255, 255, 255, 0.8);
 }
 
+.patient-record-card {
+  display: grid;
+  gap: 18px;
+}
+
 .patient-card-main {
   display: grid;
   gap: 12px;
+}
+
+.patient-card-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
 }
 
 .patient-card-main strong {
@@ -619,6 +651,80 @@ h1 {
   display: grid;
   justify-items: end;
   gap: 12px;
+}
+
+.patient-record-detail {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  padding-top: 2px;
+}
+
+.patient-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.followup-disclosure-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.followup-disclosure {
+  border: 1px solid rgba(23, 48, 71, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
+  overflow: hidden;
+}
+
+.followup-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.followup-summary::-webkit-details-marker {
+  display: none;
+}
+
+.followup-body {
+  display: grid;
+  gap: 14px;
+  padding: 0 18px 18px;
+}
+
+.inline-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.inline-image-card {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(23, 48, 71, 0.08);
+  border-radius: 16px;
+  background: rgba(247, 251, 253, 0.92);
+}
+
+.inline-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(31, 111, 139, 0.1), rgba(226, 237, 244, 0.8));
+}
+
+.inline-image-card figcaption {
+  display: grid;
+  gap: 4px;
 }
 
 .review-image-card {
@@ -720,8 +826,19 @@ h1 {
     justify-items: start;
   }
 
+  .patient-card-topline,
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .segmented-tabs,
   .subtle-tabs {
     width: 100%;
+  }
+
+  .patient-detail-grid,
+  .inline-image-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -4,6 +4,9 @@ import type {
   CreatePatientInput,
   PatientSearchInput
 } from "@/lib/validators/patient";
+import { listFollowupsForPatient } from "@/lib/followups/service";
+import { listImagesForFollowup } from "@/lib/images/service";
+import { getReportByFollowupId } from "@/lib/reports/service";
 
 export type PatientRecord = {
   id: string;
@@ -18,6 +21,36 @@ export type PatientRecord = {
   profileSource: "doctor_created" | "patient_registered";
   createdAt: string;
   updatedAt: string;
+};
+
+export type PatientImagePreview = {
+  id: string;
+  browserUrl: string;
+  originalFilename: string;
+  positionType: "sitting_front" | "sitting_side" | "supine";
+  shotDate: string;
+};
+
+export type PatientFollowupOverview = {
+  id: string;
+  followupDate: string;
+  status: "pending_ai" | "pending_review" | "completed";
+  imageCount: number;
+  positions: string[];
+  images: PatientImagePreview[];
+  report: {
+    status: "draft" | "finalized";
+    conclusion: string;
+    severityGrade: "Ia" | "Ib" | "IIa" | "IIb" | "III" | null;
+    doctorComment: string;
+  } | null;
+};
+
+export type PatientOverviewRecord = PatientRecord & {
+  followupCount: number;
+  totalImageCount: number;
+  latestFollowupDate?: string;
+  followups: PatientFollowupOverview[];
 };
 
 function formatDate(value: Date | null) {
@@ -84,6 +117,48 @@ function buildSearchWhere(filters: PatientSearchInput) {
   };
 }
 
+async function hydratePatientOverview(patient: PatientRecord): Promise<PatientOverviewRecord> {
+  const followups = await listFollowupsForPatient(patient.id);
+
+  const hydratedFollowups = await Promise.all(
+    followups.map(async (followup) => {
+      const images = await listImagesForFollowup(followup.id);
+      const report = await getReportByFollowupId(followup.id);
+
+      return {
+        id: followup.id,
+        followupDate: followup.followupDate,
+        status: followup.status,
+        imageCount: images.length,
+        positions: images.map((image) => image.positionType),
+        images: images.map((image) => ({
+          id: image.id,
+          browserUrl: `/api/images/${image.id}`,
+          originalFilename: image.originalFilename,
+          positionType: image.positionType,
+          shotDate: image.shotDate
+        })),
+        report: report
+          ? {
+              status: report.status,
+              conclusion: report.hasComplication ? report.complicationTypes.join("、") : "正常",
+              severityGrade: report.severityGrade,
+              doctorComment: report.doctorComment
+            }
+          : null
+      } satisfies PatientFollowupOverview;
+    })
+  );
+
+  return {
+    ...patient,
+    followupCount: hydratedFollowups.length,
+    totalImageCount: hydratedFollowups.reduce((total, item) => total + item.imageCount, 0),
+    latestFollowupDate: hydratedFollowups[0]?.followupDate,
+    followups: hydratedFollowups
+  };
+}
+
 export async function listPatients(filters: PatientSearchInput = {}) {
   await ensureCoreData();
 
@@ -142,6 +217,12 @@ export async function getPatientById(id: string) {
   return patient ? serializePatient(patient) : null;
 }
 
+export async function getPatientOverviewById(id: string) {
+  const patient = await getPatientById(id);
+
+  return patient ? hydratePatientOverview(patient) : null;
+}
+
 export async function getPatientByUserId(userId: string) {
   await ensureCoreData();
 
@@ -150,6 +231,12 @@ export async function getPatientByUserId(userId: string) {
   });
 
   return patient ? serializePatient(patient) : null;
+}
+
+export async function listPatientOverviews(filters: PatientSearchInput = {}) {
+  const patients = await listPatients(filters);
+
+  return Promise.all(patients.map(hydratePatientOverview));
 }
 
 export async function createOrLinkPatientProfileForUser(input: {

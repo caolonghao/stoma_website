@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ReportSummary } from "@/components/patient/report-summary";
 import { AiStatusBadge } from "@/components/shared/ai-status-badge";
+import { LogoutButton } from "@/components/shared/logout-button";
 import { getAiSnapshotForImage } from "@/lib/ai/service";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { getFollowUpById } from "@/lib/followups/service";
@@ -60,9 +61,12 @@ export default async function PatientFollowupDetailPage({
             当前展示的是这次随访已归档的图片。下一步会继续接入 AI 状态和医生最终综合报告。
           </p>
         </div>
-        <Link className="button-secondary" href="/patient/dashboard">
-          返回我的随访
-        </Link>
+        <div className="header-actions">
+          <Link className="button-secondary" href="/patient/dashboard">
+            返回我的随访
+          </Link>
+          <LogoutButton />
+        </div>
       </header>
       <section className="portal-panel">
         <div className="panel-heading">

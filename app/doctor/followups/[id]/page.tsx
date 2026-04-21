@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ReportForm } from "@/components/doctor/report-form";
 import { AiStatusBadge } from "@/components/shared/ai-status-badge";
+import { LogoutButton } from "@/components/shared/logout-button";
 import { RetryAiButton } from "@/components/doctor/retry-ai-button";
 import { getAiSnapshotForImage } from "@/lib/ai/service";
 import { getFollowUpById } from "@/lib/followups/service";
@@ -63,9 +64,12 @@ export default async function DoctorFollowupDetailPage({
             这里汇总单张图像的 AI 辅助状态。当前 AI 只返回 category 粒度，最终细分类仍由医生人工判读。
           </p>
         </div>
-        <Link className="button-secondary" href="/doctor/patients">
-          返回患者列表
-        </Link>
+        <div className="header-actions">
+          <Link className="button-secondary" href="/doctor/patients">
+            返回患者列表
+          </Link>
+          <LogoutButton />
+        </div>
       </header>
 
       <section className="portal-panel">

@@ -26,6 +26,10 @@ export function createAuthCookie(token: string) {
   return `stoma_atlas_token=${token}; Path=/; HttpOnly; SameSite=Lax`;
 }
 
+export function clearAuthCookie() {
+  return "stoma_atlas_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0";
+}
+
 export async function createAuthResponse(user: {
   id: string;
   role: "doctor" | "patient" | "admin";

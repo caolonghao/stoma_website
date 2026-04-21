@@ -100,10 +100,11 @@ test("patient upload -> doctor report -> patient reads result", async ({
     hasText: patientName
   });
   await expect(patientCard).toBeVisible();
-  await patientCard.getByRole("link", { name: "查看详情" }).click();
-
-  await expect(doctorPage).toHaveURL(/\/doctor\/patients\//);
-  await doctorPage.getByRole("link", { name: "进入随访详情" }).click();
+  const recentFollowupLink = patientCard.getByRole("link", { name: "最近随访" });
+  if (!(await recentFollowupLink.isVisible())) {
+    await patientCard.getByRole("button", { name: /档案/ }).click();
+  }
+  await recentFollowupLink.click();
 
   await expect(doctorPage).toHaveURL(/\/doctor\/followups\//);
   await expect(
