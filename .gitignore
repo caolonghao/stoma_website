@@ -5,6 +5,7 @@ coverage
 playwright-report
 test-results
 .superpowers
+.worktrees
 .bg-shell
 uploads
 prisma/dev.db
