@@ -43,6 +43,8 @@ export function ReportForm({
   const [success, setSuccess] = useState("");
   const [isPending, startTransition] = useTransition();
   const optionGroups = getComplicationOptionsForCategories(aiCategories);
+  const onlyNormalSuggested =
+    aiCategories.length > 0 && aiCategories.every((category) => category === "正常");
 
   function toggleComplication(type: string) {
     setComplicationTypes((current) =>
@@ -50,6 +52,15 @@ export function ReportForm({
         ? current.filter((item) => item !== type)
         : [...current, type]
     );
+  }
+
+  function switchComplicationState(nextHasComplication: boolean) {
+    setHasComplication(nextHasComplication);
+
+    if (!nextHasComplication) {
+      setComplicationTypes([]);
+      setSeverityGrade("");
+    }
   }
 
   async function submit(nextStatus: "draft" | "finalized") {
@@ -102,21 +113,24 @@ export function ReportForm({
 
       <div className="form-grid" style={{ marginTop: 16 }}>
         <div className="field">
-          <label>是否存在并发症</label>
+          <label>本次人工结论</label>
+          <p className="muted" style={{ margin: "0 0 10px" }}>
+            无并发症即判定为正常。只有判定为存在并发症时，才进入四类并发症范围内继续细分。
+          </p>
           <div className="chip-grid">
             <button
               className={`toggle-chip ${!hasComplication ? "active" : ""}`}
-              onClick={() => setHasComplication(false)}
+              onClick={() => switchComplicationState(false)}
               type="button"
             >
-              无
+              正常
             </button>
             <button
               className={`toggle-chip ${hasComplication ? "active" : ""}`}
-              onClick={() => setHasComplication(true)}
+              onClick={() => switchComplicationState(true)}
               type="button"
             >
-              有
+              有并发症
             </button>
           </div>
         </div>
@@ -124,9 +138,11 @@ export function ReportForm({
         {hasComplication ? (
           <>
             <div className="field">
-              <label>并发症类型</label>
+              <label>并发症分类与类型</label>
               <p className="muted" style={{ margin: "0 0 10px" }}>
-                系统会根据当前随访中的 AI category 自动对应到候选类型。AI 仅提供分组建议，最终类型仍由医生确认。
+                {onlyNormalSuggested
+                  ? "当前 AI 分类为正常。若人工判断存在并发症，请在下方四类并发症范围内选择最终分类与类型。"
+                  : "系统会根据当前随访中的 AI category 收窄到相关并发症类别。正常不属于并发症分类，最终类型仍由医生确认。"}
               </p>
               <div className="category-stack">
                 {Object.entries(optionGroups).map(([category, items]) => (
@@ -167,7 +183,14 @@ export function ReportForm({
               </div>
             </div>
           </>
-        ) : null}
+        ) : (
+          <div className="timeline-card">
+            <h3>正常</h3>
+            <p className="muted" style={{ marginTop: 8 }}>
+              当前人工结论为正常，即本次随访未发现并发症，不需要再选择四类并发症中的任何一类。
+            </p>
+          </div>
+        )}
 
         <div className="field">
           <label htmlFor="doctor-comment">医生意见</label>

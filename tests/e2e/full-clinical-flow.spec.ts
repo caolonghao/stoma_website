@@ -143,7 +143,7 @@ test("patient upload -> doctor report -> patient reads result", async ({
   await expect(
     patientPage.getByRole("heading", { name: "随访影像与医生结论" })
   ).toBeVisible();
-  await expect(patientPage.getByText("未发现并发症")).toBeVisible();
+  await expect(patientPage.getByRole("heading", { name: "正常" })).toBeVisible();
   await expect(patientPage.getByText("自动化验证：当前无并发症。")).toBeVisible();
 
   await patientContext.close();
