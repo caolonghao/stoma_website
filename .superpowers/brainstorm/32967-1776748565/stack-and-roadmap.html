@@ -1,0 +1,207 @@
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 18px;
+    margin-bottom: 20px;
+  }
+  .panel {
+    border: 1px solid #d6deea;
+    border-radius: 18px;
+    padding: 16px;
+    background: linear-gradient(180deg, #fcfdff 0%, #f7fbf9 100%);
+  }
+  .panel h3 {
+    margin-bottom: 8px;
+  }
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .stack-card {
+    border: 1px solid #d7dee8;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(55, 81, 120, 0.08);
+  }
+  .stack-head {
+    padding: 14px 16px;
+    font-weight: 700;
+    color: #17324d;
+    background: #eef4fb;
+    border-bottom: 1px solid #d7dee8;
+  }
+  .stack-head.rec {
+    background: #dff1e8;
+  }
+  .stack-body {
+    padding: 16px;
+  }
+  .stack-body ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .stack-body li + li {
+    margin-top: 6px;
+  }
+  .pill {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: #eff3f8;
+    color: #4b5d77;
+  }
+  .pill.best {
+    background: #dbf0e4;
+    color: #215940;
+  }
+  .section {
+    margin-top: 20px;
+  }
+  .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .box {
+    border: 1px solid #d7dee8;
+    border-radius: 18px;
+    background: #fff;
+    padding: 16px;
+  }
+  .box pre {
+    margin: 0;
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .roadmap {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .step {
+    border: 1px solid #d7dee8;
+    border-radius: 14px;
+    background: #fff;
+    padding: 12px;
+    min-height: 100px;
+  }
+  @media (max-width: 960px) {
+    .hero, .stack-grid, .two, .roadmap {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<h2>设计段落 4：技术栈建议、目录结构与 MVP 实施顺序</h2>
+<p class="subtitle">把方案从“概念正确”推进到“可以立即开工”。</p>
+
+<div class="hero">
+  <div class="panel">
+    <div class="label">推荐结论</div>
+    <h3>首期建议用 Next.js 全栈 + MySQL + Prisma + 对象存储</h3>
+    <p>你们现在是空项目、单科室、双端 Web、AI 接口暂未正式接入，这很适合用一套 TypeScript 全栈工程快速搭 MVP。</p>
+  </div>
+  <div class="panel">
+    <div class="label">为什么这套合适</div>
+    <p>前端页面、后端 API、鉴权中间件、上传逻辑可以放在同一个工程里，开发节奏快，后续也足够承载医生端和患者端的演进。</p>
+  </div>
+</div>
+
+<div class="stack-grid options">
+  <div class="stack-card option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="stack-head rec">A. Next.js 全栈</div>
+    <div class="stack-body">
+      <span class="pill best">推荐</span>
+      <ul>
+        <li>前端：Next.js + React + Tailwind</li>
+        <li>后端：Route Handlers / Server Actions</li>
+        <li>数据库：MySQL + Prisma</li>
+        <li>鉴权：JWT</li>
+        <li>上传：S3 兼容对象存储</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stack-card option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="stack-head">B. React + NestJS</div>
+    <div class="stack-body">
+      <span class="pill">更工程化</span>
+      <ul>
+        <li>前后端边界更清晰</li>
+        <li>更适合后期多人并行</li>
+        <li>但一期搭建成本更高</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stack-card option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="stack-head">C. Vue + Java/Spring</div>
+    <div class="stack-body">
+      <span class="pill">传统后台路线</span>
+      <ul>
+        <li>适合已有 Java 团队</li>
+        <li>稳定，但首期开发速度未必最快</li>
+        <li>如果你们团队更熟这个，也能做</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section two">
+  <div class="box">
+    <div class="label">建议目录</div>
+    <pre>/app
+  /(auth)/login
+  /(auth)/register
+  /doctor/patients
+  /doctor/patients/[id]
+  /doctor/followups/[id]
+  /patient/dashboard
+  /patient/followups/[id]
+  /api/auth/*
+  /api/patients/*
+  /api/followups/*
+  /api/images/*
+  /api/ai/*
+  /api/reports/*
+
+/components
+/lib
+  /auth
+  /db
+  /permissions
+  /storage
+  /ai
+/prisma
+  schema.prisma</pre>
+  </div>
+
+  <div class="box">
+    <div class="label">工程原则</div>
+    <pre>1. 页面按角色分区
+2. API 按资源分组
+3. 权限判断收敛到 lib/permissions
+4. AI 调用统一收敛到 lib/ai
+5. 文件上传与对象存储统一封装
+6. 数据模型以 FollowUp 为中心</pre>
+  </div>
+</div>
+
+<div class="section box">
+  <div class="label">MVP 实施顺序</div>
+  <div class="roadmap">
+    <div class="step"><strong>1. 基础骨架</strong><br>项目初始化、路由、数据库、JWT、角色权限</div>
+    <div class="step"><strong>2. 医生端先跑通</strong><br>登录、患者列表、建档、随访详情</div>
+    <div class="step"><strong>3. 患者端补齐</strong><br>注册登录、我的随访、影像上传</div>
+    <div class="step"><strong>4. AI 占位接通</strong><br>上传自动触发、结果落库、医生重跑</div>
+    <div class="step"><strong>5. 报告闭环</strong><br>医生人工判读、患者查看结果</div>
+  </div>
+</div>

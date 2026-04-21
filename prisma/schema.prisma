@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  doctor
+  patient
+}
+
+enum UserStatus {
+  active
+  inactive
+}
+
+enum Gender {
+  male
+  female
+  unknown
+}
+
+enum StomaType {
+  ileostomy
+  colostomy
+}
+
+enum ProfileSource {
+  doctor_created
+  patient_registered
+}
+
+enum FollowUpStatus {
+  pending_ai
+  pending_review
+  completed
+}
+
+enum FollowUpSource {
+  patient_upload
+  doctor_upload
+}
+
+enum ImagePositionType {
+  sitting_front
+  sitting_side
+  supine
+}
+
+enum AITaskStatus {
+  queued
+  running
+  succeeded
+  failed
+}
+
+enum AITriggerSource {
+  auto
+  manual
+}
+
+enum ReportSeverity {
+  Ia
+  Ib
+  IIa
+  IIb
+  III
+}
+
+enum ReportStatus {
+  draft
+  finalized
+}
+
+model User {
+  id            String      @id @default(cuid())
+  role          UserRole
+  status        UserStatus  @default(active)
+  account       String?     @unique
+  phone         String?     @unique
+  name          String
+  passwordHash  String
+  lastLoginAt   DateTime?
+  patient       Patient?
+  uploadedImages Image[]    @relation("UploadedImages")
+  reports       DiagnosisReport[] @relation("ReviewedReports")
+  requestedAiTasks AITask[] @relation("RequestedAITasks")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Patient {
+  id              String      @id @default(cuid())
+  userId          String?     @unique
+  name            String
+  gender          Gender      @default(unknown)
+  birthDate       DateTime?
+  phone           String?
+  stomaDate       DateTime?
+  stomaType       StomaType?
+  medicalRecordNo String?     @unique
+  profileSource   ProfileSource @default(doctor_created)
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  followUps       FollowUp[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([name])
+  @@index([phone])
+}
+
+model FollowUp {
+  id           String         @id @default(cuid())
+  patientId    String
+  followupDate DateTime
+  status       FollowUpStatus @default(pending_ai)
+  source       FollowUpSource @default(patient_upload)
+  patient      Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  images       Image[]
+  report       DiagnosisReport?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([patientId, followupDate])
+  @@index([followupDate])
+}
+
+model Image {
+  id               String            @id @default(cuid())
+  followupId       String
+  shotDate         DateTime
+  positionType     ImagePositionType
+  storageKey       String
+  fileUrl          String
+  thumbnailUrl     String?
+  originalFilename String?
+  uploadedByUserId String?
+  followup         FollowUp          @relation(fields: [followupId], references: [id], onDelete: Cascade)
+  uploadedBy       User?             @relation("UploadedImages", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
+  aiResults        AIResult[]
+  aiTasks          AITask[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([shotDate])
+}
+
+model AIResult {
+  id            String   @id @default(cuid())
+  imageId       String
+  category      String
+  label         String?
+  confidence    Float?
+  labelsVersion String?
+  rawResultJson String
+  isCurrent     Boolean  @default(true)
+  image         Image    @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+
+  @@index([imageId, isCurrent])
+}
+
+model DiagnosisReport {
+  id               String        @id @default(cuid())
+  followupId       String        @unique
+  hasComplication  Boolean
+  complicationTypes String
+  severityGrade    ReportSeverity?
+  doctorComment    String?
+  reviewedByUserId String
+  reviewedAt       DateTime
+  status           ReportStatus  @default(draft)
+  followup         FollowUp      @relation(fields: [followupId], references: [id], onDelete: Cascade)
+  reviewedBy       User          @relation("ReviewedReports", fields: [reviewedByUserId], references: [id], onDelete: Restrict)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model AITask {
+  id                String         @id @default(cuid())
+  imageId           String
+  triggerSource     AITriggerSource
+  status            AITaskStatus   @default(queued)
+  retryCount        Int            @default(0)
+  requestedByUserId String?
+  providerTaskId    String?
+  errorMessage      String?
+  startedAt         DateTime?
+  finishedAt        DateTime?
+  image             Image          @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  requestedBy       User?          @relation("RequestedAITasks", fields: [requestedByUserId], references: [id], onDelete: SetNull)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([imageId, status])
+  @@index([providerTaskId])
+}

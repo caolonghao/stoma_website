@@ -1,0 +1,256 @@
+<style>
+  .lead {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 18px;
+    margin-bottom: 20px;
+  }
+  .card {
+    border: 1px solid #d6deea;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #fcfdff 0%, #f7fbf9 100%);
+    padding: 16px;
+  }
+  .card h3 {
+    margin-bottom: 8px;
+  }
+  .model-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .entity {
+    border: 1px solid #d7dee8;
+    border-radius: 18px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(55, 81, 120, 0.08);
+  }
+  .entity-head {
+    padding: 14px 16px;
+    font-weight: 700;
+    color: #17324d;
+    background: #eef4fb;
+    border-bottom: 1px solid #d7dee8;
+  }
+  .entity-body {
+    padding: 16px;
+  }
+  .entity-body ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .entity-body li + li {
+    margin-top: 6px;
+  }
+  .rel {
+    margin-top: 20px;
+    border: 1px dashed #c8d2df;
+    border-radius: 18px;
+    padding: 16px;
+    background: #fbfdff;
+  }
+  .rel-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    align-items: stretch;
+    margin-top: 12px;
+  }
+  .rel-box {
+    border: 1px solid #d7dee8;
+    border-radius: 14px;
+    background: #fff;
+    padding: 12px;
+    min-height: 90px;
+  }
+  .arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8390a8;
+    font-size: 22px;
+  }
+  .perm {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .perm-card {
+    border: 1px solid #d7dee8;
+    border-radius: 18px;
+    background: #fff;
+    padding: 16px;
+  }
+  .perm-card h4 {
+    margin-bottom: 8px;
+  }
+  .perm-card ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .tag {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: #eef4ff;
+    color: #29476c;
+  }
+  @media (max-width: 960px) {
+    .lead, .model-grid, .perm, .rel-row {
+      grid-template-columns: 1fr;
+    }
+    .arrow {
+      min-height: 32px;
+      transform: rotate(90deg);
+    }
+  }
+</style>
+
+<h2>设计段落 2：核心数据模型与权限边界</h2>
+<p class="subtitle">目标是让“一次随访”成为中心对象，同时保证医生端和患者端看到的是同一份真实数据。</p>
+
+<div class="lead">
+  <div class="card">
+    <div class="label">建模原则</div>
+    <h3>以“随访记录”作为业务核心，而不是以图片为核心</h3>
+    <p>图片是随访的素材，AI 结果是辅助信息，人工判读报告才是最终医疗结论。这样模型更符合真实工作流，也方便后续扩展随访问卷、备注、复查建议等字段。</p>
+  </div>
+  <div class="card">
+    <div class="label">统一身份体系</div>
+    <h3>一个用户表 + 角色区分</h3>
+    <p>建议所有登录账号都放在统一的用户体系里，通过角色区分医生和患者，避免未来维护两套认证逻辑。</p>
+    <span class="tag">role = doctor / patient / admin</span>
+  </div>
+</div>
+
+<div class="model-grid">
+  <div class="entity">
+    <div class="entity-head">1. User 用户表</div>
+    <div class="entity-body">
+      <ul>
+        <li>id</li>
+        <li>role</li>
+        <li>account 或 phone</li>
+        <li>password_hash</li>
+        <li>name</li>
+        <li>status</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head">2. Patient 患者档案表</div>
+    <div class="entity-body">
+      <ul>
+        <li>id</li>
+        <li>user_id，可为空
+        <li>姓名、性别、出生日期、手机号</li>
+        <li>造口日期、造口类型、病历号</li>
+        <li>建档来源：医生建档 / 患者注册</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head">3. FollowUp 随访记录表</div>
+    <div class="entity-body">
+      <ul>
+        <li>id</li>
+        <li>patient_id</li>
+        <li>followup_date</li>
+        <li>status：待AI / 待医生判读 / 已完成</li>
+        <li>source：患者上传 / 医生补录</li>
+        <li>created_at</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head">4. Image 影像表</div>
+    <div class="entity-body">
+      <ul>
+        <li>id</li>
+        <li>followup_id</li>
+        <li>拍摄日期</li>
+        <li>体位：端坐正位 / 端坐侧位 / 平卧位</li>
+        <li>文件 URL / 存储 key / 缩略图</li>
+        <li>上传人、上传时间</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head">5. AIResult AI 辅助结果表</div>
+    <div class="entity-body">
+      <ul>
+        <li>id</li>
+        <li>followup_id 或 image_id</li>
+        <li>大类结果：5 分类</li>
+        <li>细分类结果</li>
+        <li>置信度</li>
+        <li>原始响应 JSON</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head">6. DiagnosisReport 人工诊断报告表</div>
+    <div class="entity-body">
+      <ul>
+        <li>id</li>
+        <li>followup_id</li>
+        <li>是否有并发症</li>
+        <li>并发症类型，可多选</li>
+        <li>分级：Ia / Ib / IIa / IIb / III</li>
+        <li>医生意见、判读人、判读时间</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="rel">
+  <div class="label">核心关系</div>
+  <h3>主链路建议</h3>
+  <div class="rel-row">
+    <div class="rel-box"><strong>User</strong><br>登录身份</div>
+    <div class="arrow">→</div>
+    <div class="rel-box"><strong>Patient</strong><br>患者档案</div>
+    <div class="arrow">→</div>
+    <div class="rel-box"><strong>FollowUp</strong><br>一次随访</div>
+  </div>
+  <div class="rel-row" style="margin-top:10px;">
+    <div class="rel-box"><strong>FollowUp</strong><br>一次随访</div>
+    <div class="arrow">→</div>
+    <div class="rel-box"><strong>Image</strong><br>多张影像</div>
+    <div class="arrow">→</div>
+    <div class="rel-box"><strong>AIResult / Report</strong><br>辅助诊断 + 最终诊断</div>
+  </div>
+</div>
+
+<div class="perm">
+  <div class="perm-card">
+    <div class="label">医生端权限</div>
+    <h4>可见范围</h4>
+    <ul>
+      <li>查看全部患者与全部随访</li>
+      <li>新建患者档案</li>
+      <li>查看和上传影像</li>
+      <li>触发 AI 辅助诊断</li>
+      <li>填写和修改人工最终报告</li>
+    </ul>
+  </div>
+  <div class="perm-card">
+    <div class="label">患者端权限</div>
+    <h4>可见范围</h4>
+    <ul>
+      <li>只能查看自己的患者档案</li>
+      <li>只能查看自己的随访和诊断结果</li>
+      <li>可以上传自己的影像</li>
+      <li>不能修改医生最终报告</li>
+    </ul>
+  </div>
+</div>

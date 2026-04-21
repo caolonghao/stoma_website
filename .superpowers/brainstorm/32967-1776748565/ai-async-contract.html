@@ -1,0 +1,204 @@
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 20px;
+  }
+  .panel {
+    border: 1px solid #d6deea;
+    border-radius: 18px;
+    padding: 16px;
+    background: linear-gradient(180deg, #fcfdff 0%, #f7fbf9 100%);
+  }
+  .panel h3 {
+    margin-bottom: 8px;
+  }
+  .seq {
+    border: 1px dashed #c8d2df;
+    border-radius: 18px;
+    padding: 16px;
+    background: #fbfdff;
+    margin-bottom: 20px;
+  }
+  .seq-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+    align-items: stretch;
+  }
+  .box {
+    border: 1px solid #d7dee8;
+    border-radius: 14px;
+    padding: 12px;
+    background: #fff;
+    min-height: 92px;
+  }
+  .arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8390a8;
+    font-size: 22px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .card {
+    border: 1px solid #d7dee8;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(55, 81, 120, 0.08);
+  }
+  .head {
+    padding: 14px 16px;
+    font-weight: 700;
+    color: #17324d;
+    background: #eef4fb;
+    border-bottom: 1px solid #d7dee8;
+  }
+  .body {
+    padding: 16px;
+  }
+  .body ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .body li + li {
+    margin-top: 6px;
+  }
+  .code {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #f4f7fb;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    line-height: 1.45;
+  }
+  .foot {
+    margin-top: 20px;
+    border: 1px solid #d7dee8;
+    border-radius: 18px;
+    background: #fff;
+    padding: 16px;
+  }
+  @media (max-width: 960px) {
+    .hero, .grid, .seq-row {
+      grid-template-columns: 1fr;
+    }
+    .arrow {
+      min-height: 32px;
+      transform: rotate(90deg);
+    }
+  }
+</style>
+
+<h2>AI 异步调用契约与流程</h2>
+<p class="subtitle">目标：主系统上传图片后自动触发 AI，医生可手动重跑，同时不阻塞页面。</p>
+
+<div class="hero">
+  <div class="panel">
+    <div class="label">核心原则</div>
+    <h3>主系统与 AI 服务解耦</h3>
+    <p>主系统不等待模型立即返回诊断结果，而是先创建任务并记录状态，再由后台异步处理并落库。这样上传流程稳定，AI 慢一点也不会拖垮前台体验。</p>
+  </div>
+  <div class="panel">
+    <div class="label">推荐职责分工</div>
+    <h3>业务系统管任务状态，FastAPI 管模型推理</h3>
+    <p>Next.js 后端负责创建任务、重试、鉴权、结果落库；FastAPI 只暴露 AI 任务接口，专注于取图、推理、返回结构化结果。</p>
+  </div>
+</div>
+
+<div class="seq">
+  <div class="label">异步时序</div>
+  <h3>上传自动跑 + 医生手动重跑</h3>
+  <div class="seq-row">
+    <div class="box"><strong>1. 患者上传图片</strong><br>主系统生成 image_id</div>
+    <div class="arrow">→</div>
+    <div class="box"><strong>2. 主系统建任务</strong><br>ai_task.status = queued</div>
+    <div class="arrow">→</div>
+    <div class="box"><strong>3. Worker 调 FastAPI</strong><br>POST /ai/tasks</div>
+    <div class="arrow">→</div>
+    <div class="box"><strong>4. FastAPI 推理</strong><br>running → succeeded / failed</div>
+    <div class="arrow">→</div>
+    <div class="box"><strong>5. 主系统写回</strong><br>AIResult.image_id + task 状态</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="head">主系统内部建议新增表：AITask</div>
+    <div class="body">
+      <ul>
+        <li>id</li>
+        <li>image_id</li>
+        <li>trigger_source: auto / manual</li>
+        <li>status: queued / running / succeeded / failed</li>
+        <li>retry_count</li>
+        <li>requested_by_user_id，可为空</li>
+        <li>provider_task_id，可为空</li>
+        <li>error_message</li>
+        <li>started_at / finished_at</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="head">FastAPI 服务最小接口</div>
+    <div class="body">
+      <ul>
+        <li>POST /ai/tasks 创建推理任务</li>
+        <li>GET /ai/tasks/{task_id} 查询任务状态</li>
+        <li>可选：POST /ai/tasks/{task_id}/cancel</li>
+      </ul>
+      <div class="code">POST /ai/tasks
+{
+  "image_id": "img_123",
+  "image_url": "https://storage/...jpg",
+  "callback_token": "internal-secret",
+  "labels_version": "v1"
+}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="head">FastAPI 任务状态返回</div>
+    <div class="body">
+      <div class="code">GET /ai/tasks/{task_id}
+{
+  "task_id": "task_456",
+  "status": "succeeded",
+  "result": {
+    "category": "周围皮肤并发症",
+    "label": "刺激性皮炎",
+    "confidence": 0.93,
+    "raw_result": {}
+  },
+  "error": null
+}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="head">主系统侧推荐处理</div>
+    <div class="body">
+      <ul>
+        <li>上传完成后立即返回前端，不等 AI 结束</li>
+        <li>随访详情页显示 AI 状态：排队中 / 分析中 / 已完成 / 失败</li>
+        <li>医生点击重跑时，新建一条 AITask，不覆盖历史任务</li>
+        <li>AIResult 存当前有效结果，AITask 保留完整执行历史</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <div class="label">我对一期的推荐</div>
+  <p>先用“主系统轮询 FastAPI 任务状态”的方式最稳，不必一开始就做回调。也就是主系统创建任务后，由后台 worker 定时轮询 FastAPI，拿到结果再写回数据库。等以后需要更高吞吐或更低延迟，再升级成回调 webhook。</p>
+</div>
