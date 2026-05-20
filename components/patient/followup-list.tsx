@@ -36,7 +36,7 @@ export function FollowupList({ followups }: { followups: FollowUpListItem[] }) {
   return (
     <div className="timeline-stack">
       {followups.map((item) => (
-        <article key={item.id} className="timeline-card">
+        <article key={item.id} className="timeline-card panel-surface">
           <p className="eyebrow">{item.followupDate}</p>
           <div className="panel-heading">
             <h3>{statusLabel[item.status]}</h3>
@@ -44,11 +44,10 @@ export function FollowupList({ followups }: { followups: FollowUpListItem[] }) {
               {item.imageCount} 张影像
             </span>
           </div>
-          <p className="muted" style={{ marginTop: 10 }}>
-            本次随访已收录：
-            {" "}
-            {item.positions.map((position) => positionLabel[position] ?? position).join("、")}
-          </p>
+          <div className="clinical-meta">
+            <span>影像体位</span>
+            <span>{item.positions.map((position) => positionLabel[position] ?? position).join("、")}</span>
+          </div>
           <Link
             className="auth-link"
             href={`/patient/followups/${item.id}` as Route}

@@ -1,7 +1,8 @@
 import { CreatePatientForm } from "@/components/doctor/create-patient-form";
 import { PatientListPanel } from "@/components/doctor/patient-list-panel";
 import { PatientSearchForm } from "@/components/doctor/patient-search-form";
-import { listPatients } from "@/lib/patients/service";
+import { LogoutButton } from "@/components/shared/logout-button";
+import { listPatientOverviews } from "@/lib/patients/service";
 import { patientSearchSchema } from "@/lib/validators/patient";
 
 type DoctorPatientsPageProps = {
@@ -21,7 +22,7 @@ export default async function DoctorPatientsPage({
 }: DoctorPatientsPageProps) {
   const rawFilters = (await searchParams) ?? {};
   const filters = patientSearchSchema.parse(rawFilters);
-  const patients = await listPatients(filters);
+  const patients = await listPatientOverviews(filters);
   const stats = [
     { label: "Active Files", value: String(patients.length) },
     {
@@ -39,10 +40,13 @@ export default async function DoctorPatientsPage({
       <header className="portal-header">
         <div>
           <p className="eyebrow">Doctor Workspace</p>
-          <h1 style={{ fontSize: "clamp(2.6rem, 6vw, 4.8rem)" }}>患者管理总览</h1>
-          <p style={{ marginTop: 12 }}>
+          <h1 className="page-title">患者检索与总览</h1>
+          <p className="page-intro">
             这一页已经接入真实的患者建档与组合检索服务，下一步会继续接患者详情与随访时间轴。
           </p>
+        </div>
+        <div className="header-actions">
+          <LogoutButton />
         </div>
       </header>
       <section className="portal-grid">

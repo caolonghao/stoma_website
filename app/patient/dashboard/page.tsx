@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FollowupList } from "@/components/patient/followup-list";
 import { UploadImageForm } from "@/components/patient/upload-image-form";
+import { LogoutButton } from "@/components/shared/logout-button";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { listHydratedFollowupsForPatient } from "@/lib/followups/service";
 import { getPatientByUserId } from "@/lib/patients/service";
@@ -8,19 +9,20 @@ import { getPatientByUserId } from "@/lib/patients/service";
 export default async function PatientDashboardPage() {
   const user = await getCurrentUser();
   const patient = user ? await getPatientByUserId(user.sub) : null;
-  const followups = patient
-    ? await listHydratedFollowupsForPatient(patient.id)
-    : [];
+  const followups = patient ? await listHydratedFollowupsForPatient(patient.id) : [];
 
   return (
     <main className="portal-shell">
       <header className="portal-header">
         <div>
           <p className="eyebrow">Patient Workspace</p>
-          <h1 style={{ fontSize: "clamp(2.6rem, 6vw, 4.8rem)" }}>我的随访</h1>
-          <p style={{ marginTop: 12 }}>
+          <h1 className="page-title">我的随访</h1>
+          <p className="page-intro">
             患者端第一版先聚焦上传与查看，尽量少制造压力，只保留当前真正需要的信息。
           </p>
+        </div>
+        <div className="header-actions">
+          <LogoutButton />
         </div>
       </header>
       <section className="portal-grid">
@@ -30,24 +32,31 @@ export default async function PatientDashboardPage() {
             <FollowupList followups={followups} />
           ) : (
             <article className="timeline-card">
-              <h3>需要先登录患者账号</h3>
+              <h3>患者档案暂未就绪</h3>
               <p className="muted" style={{ marginTop: 10 }}>
-                登录后系统才能识别你的患者档案，并展示只属于你的随访记录。
+                当前账号还没有关联到患者档案，暂时无法展示属于你的随访记录。
               </p>
-              <Link className="auth-link" href="/login" style={{ marginTop: 12, display: "inline-flex" }}>
-                去登录
+              <Link className="auth-link" href="/" style={{ marginTop: 12, display: "inline-flex" }}>
+                返回首页
               </Link>
             </article>
           )}
         </div>
         <aside className="portal-panel">
+          <div className="panel-heading">
+            <div>
+              <p className="eyebrow">Upload Station</p>
+              <h2>影像上传与随访归档</h2>
+              <p className="panel-intro">用最少字段完成上传，系统会自动归档到对应随访。</p>
+            </div>
+          </div>
           {patient ? (
             <UploadImageForm />
           ) : (
             <article className="upload-card">
-              <p className="eyebrow">Sign In Required</p>
-              <h3>登录后才能上传</h3>
-              <p className="muted">上传接口依赖当前患者身份，未登录时系统不会接收图片。</p>
+              <p className="eyebrow">Profile Pending</p>
+              <h3>档案建立后才可上传</h3>
+              <p className="muted">上传接口依赖患者身份绑定，档案未准备好时系统不会接收图片。</p>
             </article>
           )}
         </aside>

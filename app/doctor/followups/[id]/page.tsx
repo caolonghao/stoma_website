@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { ReportForm } from "@/components/doctor/report-form";
 import { AiStatusBadge } from "@/components/shared/ai-status-badge";
+import { LogoutButton } from "@/components/shared/logout-button";
 import { RetryAiButton } from "@/components/doctor/retry-ai-button";
 import { getAiSnapshotForImage } from "@/lib/ai/service";
 import { getFollowUpById } from "@/lib/followups/service";
 import { listImagesForFollowup } from "@/lib/images/service";
+import { formatAiCategoryLabel } from "@/lib/reports/category-label";
 import { getReportByFollowupId } from "@/lib/reports/service";
 
 const positionLabel: Record<string, string> = {
@@ -26,7 +28,7 @@ export default async function DoctorFollowupDetailPage({
       <main className="portal-shell">
         <section className="portal-panel">
           <p className="eyebrow">Doctor Follow-up</p>
-          <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}>未找到这次随访</h1>
+          <h1 className="page-title">未找到这次随访</h1>
           <Link className="auth-link" href="/doctor/patients">
             返回患者列表
           </Link>
@@ -56,14 +58,18 @@ export default async function DoctorFollowupDetailPage({
       <header className="portal-header">
         <div>
           <p className="eyebrow">Doctor Follow-up</p>
-          <h1 style={{ fontSize: "clamp(2.6rem, 6vw, 4.8rem)" }}>{followup.followupDate}</h1>
-          <p style={{ marginTop: 12 }}>
+          <h1 className="page-title">影像复核与人工判读</h1>
+          <p className="page-subtitle">随访日期 {followup.followupDate}</p>
+          <p className="page-intro">
             这里汇总单张图像的 AI 辅助状态。当前 AI 只返回 category 粒度，最终细分类仍由医生人工判读。
           </p>
         </div>
-        <Link className="button-secondary" href="/doctor/patients">
-          返回患者列表
-        </Link>
+        <div className="header-actions">
+          <Link className="button-secondary" href="/doctor/patients">
+            返回患者列表
+          </Link>
+          <LogoutButton />
+        </div>
       </header>
 
       <section className="portal-panel">
@@ -85,7 +91,7 @@ export default async function DoctorFollowupDetailPage({
                 文件：{image.originalFilename}
               </p>
               <p className="muted" style={{ margin: "8px 0 0" }}>
-                AI 分类结果：{aiResult?.category ?? "尚无结果"}
+                AI 分类结果：{formatAiCategoryLabel(aiResult?.category, "尚无结果")}
               </p>
               {aiTask ? <RetryAiButton taskId={aiTask.id} /> : null}
             </article>

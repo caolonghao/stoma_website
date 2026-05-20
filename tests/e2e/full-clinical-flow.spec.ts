@@ -46,6 +46,10 @@ test("patient upload -> doctor report -> patient reads result", async ({
   await patientPage.goto("/patient/dashboard");
 
   await expect(patientPage).toHaveURL(/\/patient\/dashboard/);
+  await expect(patientPage.getByRole("heading", { name: "我的随访" })).toBeVisible();
+  await expect(
+    patientPage.getByRole("heading", { name: "影像上传与随访归档", level: 2 })
+  ).toBeVisible();
   await patientPage.getByLabel("拍摄日期").fill(shotDate);
   await patientPage.getByLabel("影像文件").setInputFiles(sampleImagePath);
   await patientPage.getByRole("button", { name: "上传并归档" }).click();
@@ -86,6 +90,9 @@ test("patient upload -> doctor report -> patient reads result", async ({
   await doctorPage.goto("/doctor/patients");
 
   await expect(doctorPage).toHaveURL(/\/doctor\/patients/);
+  await expect(
+    doctorPage.getByRole("heading", { name: "患者检索与总览" })
+  ).toBeVisible();
   await doctorPage.locator("#name").fill(patientName);
   await doctorPage.getByRole("button", { name: "搜索患者" }).click();
 
@@ -93,12 +100,16 @@ test("patient upload -> doctor report -> patient reads result", async ({
     hasText: patientName
   });
   await expect(patientCard).toBeVisible();
-  await patientCard.getByRole("link", { name: "查看详情" }).click();
-
-  await expect(doctorPage).toHaveURL(/\/doctor\/patients\//);
-  await doctorPage.getByRole("link", { name: "进入随访详情" }).click();
+  const recentFollowupLink = patientCard.getByRole("link", { name: "最近随访" });
+  if (!(await recentFollowupLink.isVisible())) {
+    await patientCard.getByRole("button", { name: /档案/ }).click();
+  }
+  await recentFollowupLink.click();
 
   await expect(doctorPage).toHaveURL(/\/doctor\/followups\//);
+  await expect(
+    doctorPage.getByRole("heading", { name: "影像复核与人工判读" })
+  ).toBeVisible();
   await expect(doctorPage.getByText("AI 已完成")).toBeVisible();
 
   const doctorToken = await doctorPage.evaluate(() =>
@@ -130,7 +141,10 @@ test("patient upload -> doctor report -> patient reads result", async ({
   await patientPage.reload();
   await patientPage.getByRole("link", { name: "查看本次随访" }).first().click();
   await expect(patientPage).toHaveURL(/\/patient\/followups\//);
-  await expect(patientPage.getByText("未发现并发症")).toBeVisible();
+  await expect(
+    patientPage.getByRole("heading", { name: "随访影像与医生结论" })
+  ).toBeVisible();
+  await expect(patientPage.getByRole("heading", { name: "正常" })).toBeVisible();
   await expect(patientPage.getByText("自动化验证：当前无并发症。")).toBeVisible();
 
   await patientContext.close();

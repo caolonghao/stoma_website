@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { ReportSummary } from "@/components/patient/report-summary";
 import { AiStatusBadge } from "@/components/shared/ai-status-badge";
+import { LogoutButton } from "@/components/shared/logout-button";
 import { getAiSnapshotForImage } from "@/lib/ai/service";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { getFollowUpById } from "@/lib/followups/service";
 import { listImagesForFollowup } from "@/lib/images/service";
 import { getPatientByUserId } from "@/lib/patients/service";
+import { formatAiCategoryLabel } from "@/lib/reports/category-label";
 import { getReportByFollowupId } from "@/lib/reports/service";
 
 const positionLabel: Record<string, string> = {
@@ -29,7 +31,7 @@ export default async function PatientFollowupDetailPage({
       <main className="portal-shell">
         <section className="portal-panel">
           <p className="eyebrow">Follow-up Detail</p>
-          <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}>无法查看这次随访</h1>
+          <h1 className="page-title">无法查看这次随访</h1>
           <p className="hero-copy">请先确认你已经登录对应患者账号，或返回随访列表重新进入。</p>
           <Link className="auth-link" href="/patient/dashboard">
             返回我的随访
@@ -53,14 +55,18 @@ export default async function PatientFollowupDetailPage({
       <header className="portal-header">
         <div>
           <p className="eyebrow">Follow-up Detail</p>
-          <h1 style={{ fontSize: "clamp(2.6rem, 6vw, 4.8rem)" }}>{followup.followupDate}</h1>
-          <p style={{ marginTop: 12 }}>
+          <h1 className="page-title">随访影像与医生结论</h1>
+          <p className="page-subtitle">随访日期 {followup.followupDate}</p>
+          <p className="page-intro">
             当前展示的是这次随访已归档的图片。下一步会继续接入 AI 状态和医生最终综合报告。
           </p>
         </div>
-        <Link className="button-secondary" href="/patient/dashboard">
-          返回我的随访
-        </Link>
+        <div className="header-actions">
+          <Link className="button-secondary" href="/patient/dashboard">
+            返回我的随访
+          </Link>
+          <LogoutButton />
+        </div>
       </header>
       <section className="portal-panel">
         <div className="panel-heading">
@@ -81,7 +87,7 @@ export default async function PatientFollowupDetailPage({
                 上传文件：{image.originalFilename}
               </p>
               <p className="muted" style={{ margin: "6px 0 0" }}>
-                AI 分类：{aiResult?.category ?? "正在分析"}
+                AI 分类：{formatAiCategoryLabel(aiResult?.category, "正在分析")}
               </p>
             </article>
           ))}

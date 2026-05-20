@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 export function AuthShell({
@@ -47,12 +46,7 @@ export function AuthShell({
         </section>
         <section className="auth-card">
           {children}
-          <div className="inline-row">
-            <Link className="auth-link" href="/">
-              返回总入口
-            </Link>
-            <div className="muted">{footer}</div>
-          </div>
+          <div className="muted">{footer}</div>
         </section>
       </div>
     </main>

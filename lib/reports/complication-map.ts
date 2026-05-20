@@ -17,6 +17,10 @@ export const complicationCategoryMap = {
 
 export type AiCategory = keyof typeof complicationCategoryMap;
 
+const complicationOnlyCategoryMap = Object.fromEntries(
+  Object.entries(complicationCategoryMap).filter(([category]) => category !== "正常")
+) as Omit<typeof complicationCategoryMap, "正常">;
+
 export const allComplicationTypes = Array.from(
   new Set(
     Object.entries(complicationCategoryMap)
@@ -31,14 +35,14 @@ export function getComplicationOptionsForCategories(categories: string[]) {
   );
 
   if (normalized.length === 0 || normalized.every((category) => category === "正常")) {
-    return complicationCategoryMap;
+    return complicationOnlyCategoryMap;
   }
 
   const filtered = Object.fromEntries(
     normalized
       .filter((category) => category !== "正常")
       .map((category) => [category, complicationCategoryMap[category]])
-  ) as Partial<typeof complicationCategoryMap>;
+  ) as Partial<typeof complicationOnlyCategoryMap>;
 
-  return filtered;
+  return Object.keys(filtered).length > 0 ? filtered : complicationOnlyCategoryMap;
 }

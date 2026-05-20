@@ -22,11 +22,11 @@ export function ReportSummary({ report }: ReportSummaryProps) {
   }
 
   return (
-    <article className="report-card">
+    <article className="report-card panel-surface">
       <div className="panel-heading">
         <div>
           <p className="eyebrow">Doctor Report</p>
-          <h3>本次随访结论</h3>
+          <h3>医生人工结论</h3>
         </div>
         <span className={`pill ${report.status === "finalized" ? "" : "warn"}`}>
           {report.status === "finalized" ? "最终结果" : "草稿"}
@@ -34,11 +34,11 @@ export function ReportSummary({ report }: ReportSummaryProps) {
       </div>
       <div className="timeline-stack" style={{ marginTop: 16 }}>
         <div className="timeline-card">
-          <h3>{report.hasComplication ? "存在并发症" : "未发现并发症"}</h3>
+          <h3>{report.hasComplication ? "存在并发症" : "正常"}</h3>
           <p className="muted" style={{ marginTop: 8 }}>
             {report.hasComplication
               ? report.complicationTypes.join("、")
-              : "本次随访未记录并发症类型"}
+              : "本次随访判定为正常，未发现并发症"}
           </p>
         </div>
         <div className="timeline-card">

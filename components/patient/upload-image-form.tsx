@@ -50,12 +50,17 @@ export function UploadImageForm() {
   }
 
   return (
-    <article className="upload-card">
+    <article className="upload-card panel-surface">
       <p className="eyebrow">Guided Upload</p>
-      <h3>上传本次影像</h3>
+      <h3>影像上传与随访归档</h3>
       <p className="muted">
         只需要填写拍摄日期与体位。系统会自动把同一天上传的图片归成一次随访，并异步等待 AI 结果。
       </p>
+      <div className="clinical-meta">
+        <span>1. 选择拍摄日期</span>
+        <span>2. 选择体位</span>
+        <span>3. 上传后自动进入 AI 队列</span>
+      </div>
 
       <form className="form-grid" onSubmit={onSubmit} style={{ marginTop: 16 }}>
         <div className="field">
@@ -94,9 +99,11 @@ export function UploadImageForm() {
         {error ? <p style={{ color: "#9a4f40", margin: 0 }}>{error}</p> : null}
         {success ? <p style={{ color: "#1f5a3c", margin: 0 }}>{success}</p> : null}
 
-        <button className="button-primary" disabled={isPending} type="submit">
-          {isPending ? "上传中..." : "上传并归档"}
-        </button>
+        <div className="action-row">
+          <button className="button-primary" disabled={isPending} type="submit">
+            {isPending ? "上传中..." : "上传并归档"}
+          </button>
+        </div>
       </form>
     </article>
   );

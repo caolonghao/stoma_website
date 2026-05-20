@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/auth/http";
 import { getPatientByUserId } from "@/lib/patients/service";
-import { imageUploadMetadataSchema } from "@/lib/validators/image";
+import {
+  imageUploadMetadataSchema,
+  isSupportedImageFile
+} from "@/lib/validators/image";
 import { saveLocalUpload } from "@/lib/storage/service";
 import { createImageRecord } from "@/lib/images/service";
 import { enqueueAiTask } from "@/lib/ai/service";
@@ -27,6 +30,10 @@ export async function POST(request: NextRequest) {
 
   if (!isFileLike(fileEntry)) {
     return NextResponse.json({ error: "请选择图片文件" }, { status: 400 });
+  }
+
+  if (!isSupportedImageFile(fileEntry)) {
+    return NextResponse.json({ error: "仅支持图片文件上传" }, { status: 400 });
   }
 
   const metadataParse = imageUploadMetadataSchema.safeParse({

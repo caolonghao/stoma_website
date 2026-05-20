@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 import { POST as register } from "@/app/api/auth/register/route";
 import { POST as login } from "@/app/api/auth/login/route";
+import { POST as logout } from "@/app/api/auth/logout/route";
 import { GET as me } from "@/app/api/auth/me/route";
 
 describe("auth api", () => {
@@ -73,5 +74,16 @@ describe("auth api", () => {
     expect(meResponse.status).toBe(200);
     expect(meBody.user.role).toBe("doctor");
     expect(meBody.user.name).toBe("Dr. Lin");
+  });
+
+  it("clears the auth cookie on logout", async () => {
+    const request = new NextRequest("http://localhost/api/auth/logout", {
+      method: "POST"
+    });
+
+    const response = await logout(request);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("set-cookie")).toContain("stoma_atlas_token=;");
   });
 });

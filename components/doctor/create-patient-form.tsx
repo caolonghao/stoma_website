@@ -53,14 +53,15 @@ export function CreatePatientForm() {
   }
 
   return (
-    <section className="portal-panel">
+    <section className="portal-panel panel-surface">
       <div className="panel-heading">
         <div>
           <p className="eyebrow">New File</p>
-          <h2>新建患者</h2>
+          <h2>新建患者档案</h2>
         </div>
-        <span className="muted">红星必填将在下一轮补上表单细化</span>
+        <span className="muted">录入后即可进入检索与随访管理</span>
       </div>
+      <p className="panel-intro">先收集核心身份信息和造口信息，后续详情可在患者档案内继续补充。</p>
 
       <form className="form-grid" onSubmit={onSubmit} style={{ marginTop: 16 }}>
         <div className="grid-compact">
@@ -137,9 +138,11 @@ export function CreatePatientForm() {
         {error ? <p style={{ color: "#9a4f40", margin: 0 }}>{error}</p> : null}
         {success ? <p style={{ color: "#1f5a3c", margin: 0 }}>{success}</p> : null}
 
-        <button className="button-primary" disabled={isPending} type="submit">
-          {isPending ? "创建中..." : "确定建档"}
-        </button>
+        <div className="action-row">
+          <button className="button-primary" disabled={isPending} type="submit">
+            {isPending ? "创建中..." : "确定建档"}
+          </button>
+        </div>
       </form>
     </section>
   );

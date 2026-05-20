@@ -1,10 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
-export function RegisterForm() {
-  const router = useRouter();
+type RegisterFormProps = {
+  description?: string;
+  title?: string;
+};
+
+export function RegisterForm({
+  description = "先建立登录身份，后续影像、随访与医生报告都会挂在同一患者视角下展示。",
+  title = "患者注册"
+}: RegisterFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -37,8 +43,7 @@ export function RegisterForm() {
     window.localStorage.setItem("stoma_atlas_token", body.token);
 
     startTransition(() => {
-      router.push("/patient/dashboard");
-      router.refresh();
+      window.location.assign("/patient/dashboard");
     });
   }
 
@@ -46,9 +51,9 @@ export function RegisterForm() {
     <>
       <div>
         <p className="eyebrow">Patient Onboarding</p>
-        <h2>患者注册</h2>
+        <h2>{title}</h2>
         <p className="muted" style={{ marginTop: 10 }}>
-          先建立登录身份，后续影像、随访与医生报告都会挂在同一患者视角下展示。
+          {description}
         </p>
       </div>
       <form className="form-grid" onSubmit={onSubmit}>
