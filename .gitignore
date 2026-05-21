@@ -9,6 +9,7 @@ test-results
 .bg-shell
 uploads
 prisma/dev.db
+prisma/*.db.bak-*
 prisma/*.db-journal
 prisma/*.db-wal
 prisma/*.db-shm

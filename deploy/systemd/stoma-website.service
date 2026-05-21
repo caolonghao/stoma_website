@@ -1,0 +1,17 @@
+[Unit]
+Description=Stoma website Next.js service
+After=network.target
+
+[Service]
+Type=simple
+User=tonycao
+WorkingDirectory=/home/tonycao/mycode/stoma_website
+Environment=NODE_ENV=production
+EnvironmentFile=/home/tonycao/mycode/stoma_website/.env
+# Keep this port in sync with deploy/nginx/stoma.datummed.com.
+ExecStart=/home/tonycao/.nvm/versions/node/v24.13.0/bin/node /home/tonycao/mycode/stoma_website/node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3010
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
