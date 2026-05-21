@@ -37,8 +37,6 @@ export default async function DoctorPatientDetailPage({
     );
   }
 
-  const followups = await listHydratedFollowupsForPatient(patient.id);
-
   return (
     <main className="portal-shell">
       <header className="portal-header">
@@ -116,7 +114,6 @@ export default async function DoctorPatientDetailPage({
                           />
                           <figcaption>
                             <strong>{positionLabel[image.positionType]}</strong>
-                            <span className="muted">{image.originalFilename}</span>
                           </figcaption>
                         </figure>
                       ))}

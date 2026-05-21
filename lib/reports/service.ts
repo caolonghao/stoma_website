@@ -64,17 +64,28 @@ export async function upsertReport(input: ReportInput & { reviewedByUserId: stri
     status: input.status
   };
 
-  const report = existing
-    ? await prisma.diagnosisReport.update({
-        where: { followupId: input.followupId },
-        data: payload
-      })
-    : await prisma.diagnosisReport.create({
-        data: {
-          followupId: input.followupId,
-          ...payload
-        }
-      });
+  const report = await prisma.$transaction(async (tx) => {
+    const savedReport = existing
+      ? await tx.diagnosisReport.update({
+          where: { followupId: input.followupId },
+          data: payload
+        })
+      : await tx.diagnosisReport.create({
+          data: {
+            followupId: input.followupId,
+            ...payload
+          }
+        });
+
+    await tx.followUp.update({
+      where: { id: input.followupId },
+      data: {
+        status: input.status === "finalized" ? "completed" : "pending_review"
+      }
+    });
+
+    return savedReport;
+  });
 
   return serializeReport(report);
 }

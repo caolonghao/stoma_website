@@ -59,13 +59,14 @@ describe("PatientListPanel", () => {
     expect(screen.getByText("王敏")).toBeInTheDocument();
     expect(screen.getByText(/病历号 MRN-1010/)).toBeInTheDocument();
     expect(screen.getByText("共 1 位患者")).toBeInTheDocument();
-    expect(screen.getByText("front.jpg")).toBeInTheDocument();
+    expect(screen.queryByText("front.jpg")).not.toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "2026-04-20 端坐正位" })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "收起档案" }));
     expect(screen.queryByText("front.jpg")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "展开档案" }));
-    expect(screen.getByText("front.jpg")).toBeInTheDocument();
+    expect(screen.queryByText("front.jpg")).not.toBeInTheDocument();
     expect(screen.getByText("恢复平稳")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "2026-04-20 端坐正位" })).toBeInTheDocument();
   });

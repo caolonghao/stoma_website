@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getErrorMessage } from "@/lib/forms/error-message";
 
 export function UploadImageForm() {
   const router = useRouter();
@@ -10,7 +11,7 @@ export function UploadImageForm() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [isUploading, setIsUploading] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,26 +28,31 @@ export function UploadImageForm() {
     formData.append("shotDate", shotDate);
     formData.append("positionType", positionType);
 
-    const response = await fetch("/api/images", {
-      method: "POST",
-      body: formData
-    });
+    setIsUploading(true);
+    try {
+      const response = await fetch("/api/images", {
+        method: "POST",
+        body: formData
+      });
 
-    const body = await response.json();
+      const body = await response.json();
 
-    if (!response.ok) {
-      setError(body.error ?? "上传失败");
-      return;
-    }
+      if (!response.ok) {
+        setError(getErrorMessage(body.error, "上传失败，请重新选择图片后再试"));
+        return;
+      }
 
-    setSuccess(`已上传 ${file.name}，系统已自动归入 ${body.followup.followupDate} 的随访记录`);
-    setFile(null);
-    setShotDate("");
-    setPositionType("sitting_front");
+      setSuccess(`上传成功，系统已自动归入 ${body.followup.followupDate} 的随访记录`);
+      setFile(null);
+      setShotDate("");
+      setPositionType("sitting_front");
 
-    startTransition(() => {
       router.refresh();
-    });
+    } catch {
+      setError("上传失败，请检查网络后重试");
+    } finally {
+      setIsUploading(false);
+    }
   }
 
   return (
@@ -100,8 +106,8 @@ export function UploadImageForm() {
         {success ? <p style={{ color: "#1f5a3c", margin: 0 }}>{success}</p> : null}
 
         <div className="action-row">
-          <button className="button-primary" disabled={isPending} type="submit">
-            {isPending ? "上传中..." : "上传并归档"}
+          <button className="button-primary" disabled={isUploading} type="submit">
+            {isUploading ? "上传中..." : "上传并归档"}
           </button>
         </div>
       </form>

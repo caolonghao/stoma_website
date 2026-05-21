@@ -83,13 +83,16 @@ export default async function DoctorFollowupDetailPage({
         <div className="image-review-grid" style={{ marginTop: 16 }}>
           {imageCards.map(({ image, aiTask, aiResult }) => (
             <article key={image.id} className="review-image-card">
+              <img
+                alt={`${followup.followupDate} ${positionLabel[image.positionType] ?? image.positionType}`}
+                className="review-image"
+                loading="lazy"
+                src={`/api/images/${image.id}`}
+              />
               <div className="panel-heading">
                 <strong>{positionLabel[image.positionType] ?? image.positionType}</strong>
                 <AiStatusBadge status={aiTask?.status ?? "queued"} />
               </div>
-              <p className="muted" style={{ margin: "10px 0 0" }}>
-                文件：{image.originalFilename}
-              </p>
               <p className="muted" style={{ margin: "8px 0 0" }}>
                 AI 分类结果：{formatAiCategoryLabel(aiResult?.category, "尚无结果")}
               </p>

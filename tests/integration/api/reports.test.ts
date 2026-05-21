@@ -4,6 +4,7 @@ import { signJwt } from "@/lib/auth/jwt";
 import { POST as uploadImage } from "@/app/api/images/route";
 import { POST as createReport } from "@/app/api/reports/route";
 import { GET as getReport } from "@/app/api/reports/[id]/route";
+import { prisma } from "@/lib/db/prisma";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -94,6 +95,12 @@ describe("reports api", () => {
 
     expect(response.status).toBe(201);
     expect(body.report.severityGrade).toBe("Ib");
+    await expect(
+      prisma.followUp.findUnique({
+        where: { id: uploadBody.followup.id },
+        select: { status: true }
+      })
+    ).resolves.toEqual({ status: "completed" });
   });
 
   it("lets a patient read the final report for their own follow-up", async () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { getErrorMessage } from "@/lib/forms/error-message";
 
 type RegisterFormProps = {
   description?: string;
@@ -36,7 +37,7 @@ export function RegisterForm({
     const body = await response.json();
 
     if (!response.ok) {
-      setError(body.error ?? "注册失败");
+      setError(getErrorMessage(body.error, "注册失败"));
       return;
     }
 

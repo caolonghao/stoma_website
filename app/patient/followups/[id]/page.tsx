@@ -43,6 +43,7 @@ export default async function PatientFollowupDetailPage({
 
   const images = await listImagesForFollowup(followup.id);
   const report = await getReportByFollowupId(followup.id);
+  const visibleReport = report?.status === "finalized" ? report : null;
   const imageCards = await Promise.all(
     images.map(async (image) => ({
       image,
@@ -58,7 +59,7 @@ export default async function PatientFollowupDetailPage({
           <h1 className="page-title">随访影像与医生结论</h1>
           <p className="page-subtitle">随访日期 {followup.followupDate}</p>
           <p className="page-intro">
-            当前展示的是这次随访已归档的图片。下一步会继续接入 AI 状态和医生最终综合报告。
+            当前展示的是这次随访已归档的影像、AI 辅助结果，以及医生提交后的最终结论。
           </p>
         </div>
         <div className="header-actions">
@@ -79,15 +80,20 @@ export default async function PatientFollowupDetailPage({
         <div className="image-board" style={{ marginTop: 16 }}>
           {imageCards.map(({ image, aiTask, aiResult }) => (
             <article key={image.id} className="image-tile image-tile-detailed">
+              <img
+                alt={`${followup.followupDate} ${positionLabel[image.positionType] ?? image.positionType}`}
+                className="inline-image"
+                loading="lazy"
+                src={`/api/images/${image.id}`}
+              />
               <div className="panel-heading" style={{ alignItems: "center" }}>
                 <strong>{positionLabel[image.positionType] ?? image.positionType}</strong>
                 <AiStatusBadge status={aiTask?.status ?? "queued"} />
               </div>
               <p className="muted" style={{ margin: "6px 0 0" }}>
-                上传文件：{image.originalFilename}
-              </p>
-              <p className="muted" style={{ margin: "6px 0 0" }}>
-                AI 分类：{formatAiCategoryLabel(aiResult?.category, "正在分析")}
+                {aiTask?.status === "failed"
+                  ? "AI 分析暂时失败，医生会在后台重新处理。"
+                  : `AI 分类：${formatAiCategoryLabel(aiResult?.category, "正在分析")}`}
               </p>
             </article>
           ))}
@@ -95,7 +101,7 @@ export default async function PatientFollowupDetailPage({
       </section>
 
       <section className="portal-panel" style={{ marginTop: 18 }}>
-        <ReportSummary report={report} />
+        <ReportSummary report={visibleReport} />
       </section>
     </main>
   );

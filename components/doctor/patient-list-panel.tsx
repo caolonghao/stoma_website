@@ -145,7 +145,6 @@ export function PatientListPanel({ patients }: { patients: PatientOverviewRecord
                                 />
                                 <figcaption>
                                   <strong>{positionLabel[image.positionType]}</strong>
-                                  <span className="muted">{image.originalFilename}</span>
                                 </figcaption>
                               </figure>
                             ))}

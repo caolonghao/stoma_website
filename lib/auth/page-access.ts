@@ -12,5 +12,5 @@ export function canAccessPortal(
   user: AuthTokenPayload | null,
   portal: "doctor" | "patient"
 ) {
-  return Boolean(user) && user.role === portal;
+  return user ? user.role === portal : false;
 }

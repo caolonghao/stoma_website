@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
   const aiTask = await enqueueAiTask({
     imageId: created.image.id,
     imageUrl: created.image.fileUrl,
+    originalFilename: created.image.originalFilename,
     triggerSource: "auto"
   });
 

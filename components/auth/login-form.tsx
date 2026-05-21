@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { getErrorMessage } from "@/lib/forms/error-message";
 
 const rememberedKey = "stoma-atlas-remembered-account";
 
@@ -52,7 +53,7 @@ export function LoginForm({
     const body = await response.json();
 
     if (!response.ok) {
-      setError(body.error ?? "登录失败");
+      setError(getErrorMessage(body.error, "登录失败"));
       return;
     }
 
@@ -88,7 +89,7 @@ export function LoginForm({
             id="account"
             name="account"
             onChange={(event) => setAccount(event.target.value)}
-            placeholder={role === "doctor" ? "请输入医生账号" : "doctor 或 13800000001"}
+            placeholder={role === "doctor" ? "请输入医生账号" : "请输入手机号"}
             required
             value={account}
           />

@@ -83,16 +83,65 @@ function serializeResult(result: {
   };
 }
 
+async function createCurrentAiResult(input: {
+  imageId: string;
+  category: string;
+  label: string | null;
+  confidence: number | null;
+  rawResult: Record<string, unknown>;
+}) {
+  const image = await prisma.image.findUnique({
+    where: { id: input.imageId },
+    select: { followupId: true }
+  });
+
+  await prisma.aIResult.updateMany({
+    where: { imageId: input.imageId },
+    data: { isCurrent: false }
+  });
+
+  const result = await prisma.aIResult.create({
+    data: {
+      imageId: input.imageId,
+      category: input.category,
+      label: input.label,
+      confidence: input.confidence,
+      labelsVersion: "v1",
+      rawResultJson: JSON.stringify(input.rawResult),
+      isCurrent: true
+    }
+  });
+
+  if (image) {
+    await prisma.followUp.update({
+      where: { id: image.followupId },
+      data: { status: "pending_review" }
+    });
+  }
+
+  return result;
+}
+
 export async function enqueueAiTask(input: {
   imageId: string;
   imageUrl: string;
+  originalFilename?: string;
   triggerSource: "auto" | "manual";
   requestedByUserId?: string;
 }) {
-  const providerTask = await createProviderTask({
-    imageId: input.imageId,
-    imageUrl: input.imageUrl
-  });
+  let providerTask: Awaited<ReturnType<typeof createProviderTask>> | null = null;
+  let providerError: string | null = null;
+
+  try {
+    providerTask = await createProviderTask({
+      imageId: input.imageId,
+      imageUrl: input.imageUrl,
+      originalFilename: input.originalFilename
+    });
+  } catch (error) {
+    providerError =
+      error instanceof Error ? error.message : "Unknown AI provider error";
+  }
 
   const retryCount = await prisma.aITask.count({
     where: { imageId: input.imageId }
@@ -102,12 +151,25 @@ export async function enqueueAiTask(input: {
     data: {
       imageId: input.imageId,
       triggerSource: input.triggerSource,
-      status: "queued",
+      status: providerError ? "failed" : providerTask?.status ?? "queued",
       retryCount,
       requestedByUserId: input.requestedByUserId ?? null,
-      providerTaskId: providerTask.id
+      providerTaskId: providerTask?.id ?? "",
+      errorMessage: providerError,
+      finishedAt:
+        providerError || providerTask?.status === "succeeded" ? new Date() : null
     }
   });
+
+  if (providerTask?.status === "succeeded" && providerTask.result) {
+    await createCurrentAiResult({
+      imageId: input.imageId,
+      category: providerTask.result.category,
+      label: providerTask.result.label,
+      confidence: providerTask.result.confidence,
+      rawResult: providerTask.result.rawResult
+    });
+  }
 
   return serializeTask(task);
 }
@@ -115,11 +177,13 @@ export async function enqueueAiTask(input: {
 export async function retryAiTaskForImage(input: {
   imageId: string;
   imageUrl: string;
+  originalFilename?: string;
   requestedByUserId: string;
 }) {
   return enqueueAiTask({
     imageId: input.imageId,
     imageUrl: input.imageUrl,
+    originalFilename: input.originalFilename,
     triggerSource: "manual",
     requestedByUserId: input.requestedByUserId
   });
@@ -204,21 +268,12 @@ export async function syncAiTaskById(id: string) {
     const providerTask = await getProviderTask(existing.providerTaskId ?? "");
 
     if (providerTask.status === "succeeded" && providerTask.result) {
-      await prisma.aIResult.updateMany({
-        where: { imageId: existing.imageId },
-        data: { isCurrent: false }
-      });
-
-      await prisma.aIResult.create({
-        data: {
-          imageId: existing.imageId,
-          category: providerTask.result.category,
-          label: providerTask.result.label,
-          confidence: providerTask.result.confidence,
-          labelsVersion: "v1",
-          rawResultJson: JSON.stringify(providerTask.result.rawResult),
-          isCurrent: true
-        }
+      await createCurrentAiResult({
+        imageId: existing.imageId,
+        category: providerTask.result.category,
+        label: providerTask.result.label,
+        confidence: providerTask.result.confidence,
+        rawResult: providerTask.result.rawResult
       });
 
       const updated = await prisma.aITask.update({
@@ -299,6 +354,7 @@ export async function retryAiTaskByTaskId(input: {
   return retryAiTaskForImage({
     imageId: image.id,
     imageUrl: image.fileUrl,
+    originalFilename: image.originalFilename,
     requestedByUserId: input.requestedByUserId
   });
 }
